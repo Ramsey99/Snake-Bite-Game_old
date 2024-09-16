@@ -353,7 +353,6 @@ const Level2 = ({ onNext }) => {
             box3?.code == "H" &&
             box4?.code == "H"
           ) {
-            selectedCode = "H"; // Set code H
             setAlertVisible(true);
             setShowSuccessPopup(true);
           } else if (
@@ -362,31 +361,9 @@ const Level2 = ({ onNext }) => {
             box3?.code == "N" &&
             box4?.code == "N"
           ) {
-            selectedCode = "N"; // Set code N
             setAlertVisible(true);
             setShowSuccessPopup(true);
-          }
-          else if (
-            box1?.code === "X" &&
-             box2?.code === "X" &&
-              box3?.code === "X" &&
-               box4?.code === "X"
-              ) {
-            selectedCode = "X"; // Set code X
-            setAlertVisible(true);
-            setShowSuccessPopup(true);
-          }
-    
-          if (selectedCode) {
-            setAlertVisible(true);
-            setShowSuccessPopup(true);
-    
-            // Call the onNext function and pass the selected code
-            if (onNext) {
-              onNext(selectedCode); // Send the selected code to the next level
-            }
-          }
-          else {
+          } else {
             setalertwrongVisible(true);
           }
         }
