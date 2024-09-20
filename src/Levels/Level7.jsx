@@ -3,27 +3,52 @@
 import React, { useState, useEffect } from 'react';
 import CustomAlert from './CustomAlert'; // Importing the CustomAlert component
 
-const Level7 = ({ onNext }) => {
-  const initialDeck = new Map([
-    ['one', 'Loading Atropine IV Neostigmine IM or IV'],
-    ['two', 'Atropine IV Neostigmine IM or IV maintenance dose'],
-    ['three', 'Loading Atropine IM Neostigmine IM or IV'],
-    ['four', 'Atropine IV'],
-    ['five', 'Neostigmine IM or IV'],
-  ]);
+import { useNavigate } from "react-router-dom";
 
-  const correctSequence = ['one']; // Correct sequence for Level 7
-  const [deck, setDeck] = useState([]);
-  const [result, setResult] = useState([]);
-  const [selectedCard, setSelectedCard] = useState({}); // Change to 1 slot instead of 3
+const Level7 = ({ setCompletedLevels }) => {
+  const navigate = useNavigate();
+
+  const handleCompleteLevel7 = () => {
+    // Mark level 7 as completed
+    const completedLevels = { level1: true, level2: true, level3: true, level4: false, level5: true, level6:true, level7: true, level8: false };
+    localStorage.setItem('completedLevels', JSON.stringify(completedLevels));
+    setCompletedLevels(completedLevels);
+
+    // Navigate to level 8
+    navigate("/level8");
+  };
+  const initialDeck = [
+    { id: 1, text: 'Loading Atropine IV Neostigmine IM or IV' },
+    { id: 2, text: 'Atropine IV Neostigmine IM or IV maintenance dose' },
+    { id: 3, text: 'Loading Atropine IM Neostigmine IM or IV' },
+    { id: 4, text: 'Atropine IV' },
+    { id: 5, text: 'Neostigmine IM or IV' },
+  ];
+
+  // Correct sequence of cards
+  const correctSequence = [
+    { id: 1, text: 'Loading Atropine IV Neostigmine IM or IV' }
+  ];
+  
+  const [deck, setDeck] = useState({});
+  const [selectedCards, setSelectedCards] = useState({});
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  const [alertWrongVisible, setAlertWrongVisible] = useState(false);
+  const [showWrongPopup, setShowWrongPopup] = useState(false);
+  const [result, SetResult] = useState([]);
 
   // Shuffle the deck when the component mounts
   useEffect(() => {
     const shuffledDeck = shuffle(Array.from(initialDeck.entries()));
     setDeck(shuffledDeck);
   }, []);
+
+  useEffect(() => {
+    if (
+      selectedCards.text !== undefined
+    ) {
+      res();
+    }
+  }, [selectedCards]);
 
   // Shuffle function
   const shuffle = (array) => {
@@ -34,117 +59,164 @@ const Level7 = ({ onNext }) => {
     return array;
   };
 
-  // Check if the selected sequence is correct
-  const checkSequence = (selectedSequence) => {
-    if (JSON.stringify(selectedSequence) === JSON.stringify(correctSequence)) {
-      setShowSuccessPopup(true);
+  function getRandomObject() {
+    const randomIndex = Math.floor(Math.random() * initialDeck.length);
+    return initialDeck[randomIndex];
+  }
+
+  const initialfun = () => {
+    setDeck(getRandomObject());
+  };
+
+  const getText = () => {
+    if (deck.text === undefined) {
+      alert("Please select the card from the deck");
     } else {
-      setAlertWrongVisible(true);
+      setSelectedCards(deck);
+      SetResult((prevResult) => [...prevResult, deck]);
+      initialfun();
+      // handleBoxClick(setSelectedCards);
     }
   };
 
-  // Handle card selection
-  const handleCardClick = (card) => {
-    if (result.length >= 1 || result.includes(card[0])) return; // Prevent selecting more than 1 card or the same card twice
+  const res = () => {
+    // console.log('sdsds');
+    console.log(selectedCards);
 
-    const updatedResult = [card[0]];
-    setResult(updatedResult);
+    if (
+      selectedCards.id === correctSequence[0].id
+    ) {
+      // console.log('correct');
+      setShowSuccessPopup(true);
+    } else {
+      // console.log("incorrect");
+      setShowWrongPopup(true); // Show wrong popup
+    }
 
-    setSelectedCard({ text: card[1], key: card[0] }); // Store the selected card
+    // if(result.length>=3){
+    //   console.log(result);
 
-    // Move selected card out and shuffle remaining cards
-    const newDeck = deck.filter((c) => c[0] !== card[0]);
-    setDeck(shuffle(newDeck));
-
-    checkSequence(updatedResult);
+    // }
   };
 
-  // Reset game after incorrect attempt
-  const resetGame = () => {
-    setResult([]);
-    setSelectedCard({}); // Reset to 1 empty slot
-    setDeck(shuffle(Array.from(initialDeck.entries())));
+  const handleBoxClick = () => {
+    if (selectedCards ) {
+      const userSequence = [selectedCards];
+      const correctSequenceIds = correctSequence.map((card) => card.id);
+      const userSequenceIds = userSequence.map((card) => card.id);
+      if (userSequenceIds.join(',') === correctSequenceIds.join(',')) {
+        setShowSuccessPopup(true); // Show success popup
+      } else {
+        setShowWrongPopup(true); // Show wrong popup
+      }
+    }
   };
 
-  // Handle success popup close and proceed to next level
   const handleSuccessClose = () => {
     setShowSuccessPopup(false);
-    onNext(); // Proceed to the next level
+    handleCompleteLevel7();
   };
 
+  const resetGame = () => {
+    // Reset the selected cards
+    setSelectedCards({});
+    
+    // Reshuffle the deck
+    const reshuffledDeck = shuffle(Array.from(initialDeck.entries()));
+    setDeck(reshuffledDeck);
+  };
+
+  // const handleWrongClose = () => {
+  //   // setShowWrongPopup(false);
+  //   // Optional: Reset the selected cards here if necessary
+  // };
+
   return (
-    <>
+    <div>
       <div className="flex flex-col items-center">
         <div>
           <h2 className="text-center text-2xl font-bold text-blue-400">
-            Neurological Signs:
-          </h2>
-          <h2 className="text-center text-lg font-bold mb-4">
-            Select the correct card and place it in the correct sequence
+          Manage according to envenomation:
           </h2>
           <div className="flex flex-wrap justify-center items-center mt-4 sm:mt-7 space-y-4 sm:space-y-0 sm:space-x-4">
-            {/* Display cards from the deck */}
-            {deck.map((card, index) => (
+            <div className="relative w-40 h-48 sm:w-64 sm:h-80 flex justify-center items-center">
               <div
-                key={index}
-                className="relative w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 m-2 flex items-center justify-center cursor-pointer"
-                onClick={() => handleCardClick(card)}
+                className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg"
+                style={{ top: "0px", left: "0px", zIndex: 0 }}
+              ></div>
+              <div
+                className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg top-2 left-2 sm:top-4 sm:left-4"
+                style={{ zIndex: 1 }}
+              ></div>
+              <div
+                className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg top-4 left-4 sm:top-8 sm:left-8"
+                style={{ zIndex: 2 }}
+              ></div>
+              <div
+                className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg top-6 left-6 sm:top-12 sm:left-12"
+                style={{ zIndex: 3 }}
+              ></div>
+              <div
+                className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg top-8 left-8 sm:top-16 sm:left-16"
+                style={{ zIndex: 4 }}
+                onClick={initialfun}
               >
-                <p className="text-sm font-semibold text-gray-800">{card[1]}</p>
+                <p className="text-xs sm:text-sm">{deck.text}</p>
               </div>
-            ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Selected Sequence Display */}
-      <div className="text-xl mb-8">
-        <h2 className="text-center text-lg font-bold mb-4">Selected Card</h2>
-        <div className="flex justify-center">
-          <div
-            className="border-2 border-lime-400 w-40 h-24 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
-          >
-            <p className="text-sm">{selectedCard.text}</p>
+        <div className="text-xl mb-8">
+          <div>
+          <h2 className="text-center text-lg font-bold mb-4">Select Correct Cards</h2>
           </div>
-        </div>
-      </div>
-
-      {/* Success Popup for Correct Sequence */}
-      {showSuccessPopup && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center">
-            <h2 className="text-lg font-semibold text-green-600 mb-4">Congratulations, correct sequence!</h2>
-            <p className="text-green-600">Proceed to the next level.</p>
-            <button
-              onClick={handleSuccessClose}
-              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          
+          <div className="flex flex-wrap justify-center gap-8">
+            <div
+              className="border-2 border-lime-400 w-40 h-24 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
+              onClick={getText}
             >
-              Continue
-            </button>
+              <p className="text-xs sm:text-sm">{selectedCards.text}</p>
+            </div>
           </div>
         </div>
-      )}
 
-      {/* Wrong Alert */}
-      {alertWrongVisible && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-bold mb-4 text-red-600">Wrong!</h2>
-            <p className="text-lg text-gray-700">You have selected the wrong card!</p>
-            <button
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              onClick={() => {
-                setAlertWrongVisible(false);
-                resetGame();
-              }}
-            >
-              Play Again
-            </button>
+        {/* Success Popup for Correct Sequence */}
+        {showSuccessPopup && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center">
+              <h2 className="text-2xl font-bold text-green-600 mb-4">Correct!</h2>
+              <button
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                onClick={handleSuccessClose}
+              >
+                Proceed to the next level
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-    </>
+        )}
+
+        {/* Wrong Popup for Incorrect Sequence */}
+        {showWrongPopup && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center">
+              <h2 className="text-2xl font-bold text-red-400 mb-4">Incorrect!</h2>
+              <p className="mb-6">You have selected the wrong sequence.</p>
+              <button
+                className="bg-red-400 text-white px-4 py-2 rounded-md"
+                onClick={() => {
+                  setShowWrongPopup(false);
+                  resetGame();
+                }}
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
-
 export default Level7;

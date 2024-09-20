@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
-import Level1 from './Levels/Level1';
-import Level2 from './Levels/Level2';
-import Level3 from './Levels/Level3';
-import Level4 from './Levels/Level4';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom"; // Use Navigate instead of Redirect
+import { useState } from "react";
+import Level1 from "./Levels/Level1";
+import Level2 from "./Levels/Level2"; // Assuming you have these components
+import Level3 from "./Levels/Level3";
+import Level4 from "./Levels/Level4";
 import Level5 from './Levels/Level5';
 import Level6 from './Levels/Level6';
 import Level7 from './Levels/Level7';
@@ -15,42 +21,202 @@ import Level13 from './Levels/Level13';
 import Level14 from './Levels/Level14';
 import Level15 from './Levels/Level15';
 import Level16 from './Levels/Level16';
-import CustomAlert from './Levels/CustomAlert';
 
 function App() {
-  const [currentLevel, setCurrentLevel] = useState(1);
-  const [alertMessage, setAlertMessage] = useState(null);
+  // Initialize completedLevels from local storage
+  const [completedLevels, setCompletedLevels] = useState(() => {
+    const savedLevels = localStorage.getItem("completedLevels");
+    return savedLevels
+      ? JSON.parse(savedLevels)
+      : { level1: false, level2: false };
+  });
 
-  const handleAlertClose = () => setAlertMessage(null);
-
-  const handleLevelChange = () => {
-    setCurrentLevel(prevLevel => prevLevel + 1);
-  };
-
-  const handleAlert = (message) => {
-    setAlertMessage(message);
+  // Define the ProtectedRoute function
+  const ProtectedRoute = ({ completed, redirectTo, children }) => {
+    return completed ? children : <Navigate to={redirectTo} />;
   };
 
   return (
-    <div className="App">
-      {currentLevel === 1 && <Level1 onNext={handleLevelChange} onAlert={handleAlert} />}
-      {currentLevel === 2 && <Level2 onNext={handleLevelChange} onAlert={handleAlert} />}
-      {currentLevel === 3 && <Level3 onNext={handleLevelChange} onAlert={handleAlert} />}
-      {currentLevel === 4 && <Level4 onNext={handleLevelChange} onAlert={handleAlert} />}
-      {currentLevel === 5 && <Level5 onNext={handleLevelChange} onAlert={handleAlert} />}
-      {currentLevel === 6 && <Level6 onNext={handleLevelChange} onAlert={handleAlert} />}
-      {currentLevel === 7 && <Level7 onNext={handleLevelChange} onAlert={handleAlert} />}
-      {currentLevel === 8 && <Level8 onNext={handleLevelChange} onAlert={handleAlert} />}
-      {currentLevel === 9 && <Level9 onNext={handleLevelChange} onAlert={handleAlert} />}
-      {currentLevel === 10 && <Level10 onNext={handleLevelChange} onAlert={handleAlert} />}
-      {currentLevel === 11 && <Level11 onNext={handleLevelChange} onAlert={handleAlert} />}
-      {currentLevel === 12 && <Level12 onNext={handleLevelChange} onAlert={handleAlert} />}
-      {currentLevel === 13 && <Level13 onNext={handleLevelChange} onAlert={handleAlert} />}
-      {currentLevel === 14 && <Level14 onNext={handleLevelChange} onAlert={handleAlert} />}
-      {currentLevel === 15 && <Level15 onNext={handleLevelChange} onAlert={handleAlert} />}
-      {currentLevel === 16 && <Level16 onNext={handleLevelChange} onAlert={handleAlert} />}
-      {alertMessage && <CustomAlert message={alertMessage} onClose={handleAlertClose} />}
-    </div>
+    <Router>
+      <Routes>
+        {/* Route for Level 1 */}
+        <Route
+          path="/level1"
+          element={<Level1 setCompletedLevels={setCompletedLevels} />}
+        />
+
+        {/* Protected Route for Level 2 */}
+        <Route
+          path="/level2"
+          element={
+            <ProtectedRoute
+              completed={completedLevels.level1}
+              redirectTo="/level1"
+            >
+              <Level2 setCompletedLevels={setCompletedLevels} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/level3"
+          element={
+            <ProtectedRoute
+              completed={completedLevels.level2}
+              redirectTo="/level2"
+            >
+              <Level3 setCompletedLevels={setCompletedLevels} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/level4"
+          element={
+            <ProtectedRoute
+              completed={completedLevels.level3}
+              redirectTo="/level3"
+            >
+              <Level4 setCompletedLevels={setCompletedLevels} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/level5"
+          element={
+            <ProtectedRoute
+              completed={completedLevels.level4}
+              redirectTo="/level4"
+            >
+              <Level5 setCompletedLevels={setCompletedLevels} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/level6"
+          element={
+            <ProtectedRoute
+              completed={completedLevels.level5}
+              redirectTo="/level5"
+            >
+              <Level6 setCompletedLevels={setCompletedLevels} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/level7"
+          element={
+            <ProtectedRoute
+              completed={completedLevels.level6}
+              redirectTo="/level6"
+            >
+              <Level7 setCompletedLevels={setCompletedLevels} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/level8"
+          element={
+            <ProtectedRoute
+              completed={completedLevels.level7}
+              redirectTo="/level7"
+            >
+              <Level8 setCompletedLevels={setCompletedLevels} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/level9"
+          element={
+            <ProtectedRoute
+              completed={completedLevels.level8}
+              redirectTo="/level8"
+            >
+              <Level9 setCompletedLevels={setCompletedLevels} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/level10"
+          element={
+            <ProtectedRoute
+              completed={completedLevels.level9}
+              redirectTo="/level9"
+            >
+              <Level10 setCompletedLevels={setCompletedLevels} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/level11"
+          element={
+            <ProtectedRoute
+              completed={completedLevels.level10}
+              redirectTo="/level10"
+            >
+              <Level11 setCompletedLevels={setCompletedLevels} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/level12"
+          element={
+            <ProtectedRoute
+              completed={completedLevels.level11}
+              redirectTo="/level11"
+            >
+              <Level12 setCompletedLevels={setCompletedLevels} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/level13"
+          element={
+            <ProtectedRoute
+              completed={completedLevels.level12}
+              redirectTo="/level12"
+            >
+              <Level13 setCompletedLevels={setCompletedLevels} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/level14"
+          element={
+            <ProtectedRoute
+              completed={completedLevels.level13}
+              redirectTo="/level13"
+            >
+              <Level14 setCompletedLevels={setCompletedLevels} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/level15"
+          element={
+            <ProtectedRoute
+              completed={completedLevels.level14}
+              redirectTo="/level14"
+            >
+              <Level15 setCompletedLevels={setCompletedLevels} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/level16"
+          element={
+            <ProtectedRoute
+              completed={completedLevels.level15}
+              redirectTo="/level15"
+            >
+              <Level16 setCompletedLevels={setCompletedLevels} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Fallback route to Level 1 */}
+        <Route path="*" element={<Navigate to="/level1" />} />
+      </Routes>
+    </Router>
   );
 }
 
