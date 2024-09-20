@@ -3,6 +3,16 @@ import { useNavigate } from "react-router-dom";
 
 const Level1 = ({ setCompletedLevels }) => {
   const navigate = useNavigate(); // For navigation to next level
+  const [deck, setDeck] = useState({});
+  const [selectedCards1, setSelectedCards1] = useState({});
+  const [selectedCards2, setSelectedCards2] = useState({});
+  const [selectedCards3, setSelectedCards3] = useState({});
+  const [selectedCards4, setSelectedCards4] = useState({});
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showWrongPopup, setShowWrongPopup] = useState(false);
+  const [result, SetResult] = useState([]);
+  const [sc, setsc] = useState(0);
+  const [countdown, setCountdown] = useState(30);
 
   const handleCompleteLevel1 = () => {
     // Mark level 1 as completed
@@ -38,21 +48,11 @@ const Level1 = ({ setCompletedLevels }) => {
     { id: 11, text: "Tell the doctor of any emergent sign" },
   ];
 
-  const [deck, setDeck] = useState({});
-  const [selectedCards1, setSelectedCards1] = useState({});
-  const [selectedCards2, setSelectedCards2] = useState({});
-  const [selectedCards3, setSelectedCards3] = useState({});
-  const [selectedCards4, setSelectedCards4] = useState({});
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  const [showWrongPopup, setShowWrongPopup] = useState(false);
-  const [result, SetResult] = useState([]);
-  const [sc, setsc] = useState(0);
-
   useEffect(() => {
     const shuffledDeck = shuffle(Array.from(initialDeck.entries()));
     setDeck(shuffledDeck);
   }, []);
-  
+
   useEffect(() => {
     if (
       selectedCards1.text !== undefined &&
@@ -63,6 +63,22 @@ const Level1 = ({ setCompletedLevels }) => {
       res();
     }
   }, [selectedCards1, selectedCards2, selectedCards3, selectedCards4]);
+
+  useEffect(() => {
+    if (countdown <= 0) {
+      window.location.reload(); // Reload the page when countdown reaches zero
+      return;
+    }
+    
+    // Set the interval to decrease countdown every second (1000 ms)
+    const timer = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+  
+    // Cleanup the interval on component unmount
+    return () => clearInterval(timer);
+  }, [countdown]);
+  
 
   const shuffle = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
@@ -176,37 +192,6 @@ const Level1 = ({ setCompletedLevels }) => {
         console.log(selected);
       }
     }
-    //   if(sc >= 3){
-    //     console.log("selectedCards1", card1);
-    //     console.log("selectedCards2", card2);
-    //     console.log("selectedCards3", card3);
-    //     console.log("selectedCards4", card4);
-    //     // const userSequence = [card1, card2, card3, card4];
-    //     // const correctSequenceIds = correctSequence.map((card) => card.id);
-    //     // const userSequenceIds = userSequence.map((card) => card.id);
-    //     // if (userSequenceIds.join(',') === correctSequenceIds.join(',')) {
-    //     //   setShowSuccessPopup(true); // Show success popup
-    //     // } else {
-    //     //   setShowWrongPopup(true); // Show wrong popup
-    //   // }
-    // }
-
-    //   if (Object.keys(card1).length > 0 && Object.keys(card2).length > 0 &&
-    //   Object.keys(card3).length > 0 && Object.keys(card4).length > 0) {
-    //     // const userSequence = [card1, card2, card3, card4];
-    //     // const correctSequenceIds = correctSequence.map((card) => card.id);
-    //     // const userSequenceIds = userSequence.map((card) => card.id);
-    //     // if (userSequenceIds.join(',') === correctSequenceIds.join(',')) {
-    //     //   setShowSuccessPopup(true); // Show success popup
-    //     // } else {
-    //     //   setShowWrongPopup(true); // Show wrong popup
-    //     // }
-    //     alert("Please select all the cards");
-    //   }
-    //   // else{
-    //   //   alert("Please select all the cards");
-
-    //   // }
   };
 
   const handleSuccessClose = () => {
@@ -227,75 +212,62 @@ const Level1 = ({ setCompletedLevels }) => {
   };
 
   return (
-    <div>
-      <div className="flex flex-col items-center">
-        <div>
-          <h2 className="text-center text-xl font-bold mr-10">
-            Choose card from deck
-          </h2>
-          <div className="flex flex-wrap justify-center items-center mt-4 sm:mt-7 space-y-4 sm:space-y-0 sm:space-x-4">
-            <div className="relative w-40 h-48 sm:w-64 sm:h-80 flex justify-center items-center">
-              <div
-                className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg"
-                style={{ top: "0px", left: "0px", zIndex: 0 }}
-              ></div>
-              <div
-                className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg top-2 left-2 sm:top-4 sm:left-4"
-                style={{ zIndex: 1 }}
-              ></div>
-              <div
-                className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg top-4 left-4 sm:top-8 sm:left-8"
-                style={{ zIndex: 2 }}
-              ></div>
-              <div
-                className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg top-6 left-6 sm:top-12 sm:left-12"
-                style={{ zIndex: 3 }}
-              ></div>
-              <div
-                className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg top-8 left-8 sm:top-16 sm:left-16"
-                style={{ zIndex: 4 }}
-                onClick={initialfun}
-              >
-                <p className="text-xs sm:text-sm">{deck.text}</p>
-              </div>
-            </div>
+    <div className="">
+      <div className="flex items-center justify-between w-full">
+        <h2 className="text-xl font-bold mx-auto mr-54">Choose card from deck</h2>
+        
+      </div>
+
+      <div className="w-full h-70 m-7 flex flex-col items-center ml-1">
+        <div className="relative w-60 h-72 cursor-pointer " onClick={initialfun}>
+          <div className="absolute inset-0 bg-blue-500 border border-gray-400 transform translate-y-12 translate-x-8"></div>
+          <div className="absolute inset-0 bg-blue-400 border border-gray-400 transform translate-y-9 translate-x-6"></div>
+          <div className="absolute inset-0 bg-blue-300 border border-gray-400 transform translate-y-6 translate-x-4"></div>
+          <div className="absolute inset-0 bg-blue-200 border border-gray-400 transform translate-y-3 translate-x-2"></div>
+          <div className="absolute inset-0 bg-blue-100 border border-gray-400 flex items-center justify-center">
+            <p className="text-center text-xl">{deck.text}</p>
           </div>
         </div>
 
-        <div className="text-xl mb-8">
+        <div className="text-xl w-full h-30">
           <div>
-            <h2 className="text-center text-lg font-bold mb-4">
+            <h2 className="text-center text-lg font-bold mt-14">
               Select Correct Cards
             </h2>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-8">
+          <div className="flex flex-wrap justify-center gap-8 mt-4">
             <div
-              className="border-2 border-lime-400 w-40 h-24 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
+              className="border-2 border-blue-400 w-60 h-32 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
               onClick={getText1}
             >
-              <p className="text-xs sm:text-sm">{selectedCards1.text}</p>
+              <p className="text-md text-center">{selectedCards1.text}</p>
             </div>
             <div
-              className="border-2 border-lime-400 w-40 h-24 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
+              className="border-2 border-blue-400 w-60 h-32 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
               onClick={getText2}
             >
-              <p className="text-xs sm:text-sm">{selectedCards2.text}</p>
+              <p className="text-md text-center">{selectedCards2.text}</p>
             </div>
 
             <div
-              className="border-2 border-lime-400 w-40 h-24 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
+              className="border-2 border-blue-400 w-60 h-32 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
               onClick={getText3}
             >
-              <p className="text-xs sm:text-sm">{selectedCards3.text}</p>
+              <p className="text-md text-center">{selectedCards3.text}</p>
             </div>
             <div
-              className="border-2 border-lime-400 w-40 h-24 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
+              className="border-2 border-blue-400 w-60 h-32 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
               onClick={getText4}
             >
-              <p className="text-xs sm:text-sm">{selectedCards4.text}</p>
+              <p className="text-md text-center">{selectedCards4.text}</p>
             </div>
+            
           </div>
+          
+        </div>
+        <div className="flex w-full mt-10">
+          <h2 className="text-xl text-blue-600 font-bold">Time Remaining: {countdown} seconds</h2>
         </div>
 
         {/* Success Popup for Correct Sequence */}

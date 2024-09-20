@@ -2,18 +2,28 @@ import React, { useState, useEffect } from "react";
 import CustomAlert from "./CustomAlert"; // Importing the CustomAlert component
 import { useNavigate } from "react-router-dom";
 
-const Level2 = ({setCompletedLevels }) => {
+const Level2 = ({ setCompletedLevels }) => {
   const navigate = useNavigate();
+  const [selectedOption, setSelectedOption] = useState(null); // H, N, or X
+
+  const handleSelection = (code) => {
+    setSelectedOption(code);
+  };
 
   const handleCompleteLevel2 = () => {
     // Mark level 2 as completed
     const completedLevels = { level1: true, level2: true };
-    localStorage.setItem('completedLevels', JSON.stringify(completedLevels));
+    localStorage.setItem("completedLevels", JSON.stringify(completedLevels));
+
+    // Save the selected option (H, N, X) from Level 2
+    localStorage.setItem("level2Selection", selectedOption);
+
     setCompletedLevels(completedLevels);
 
     // Navigate to level 3
     navigate("/level3");
   };
+
   const [his, setHis] = useState({});
   const [exam, setExam] = useState({});
   const [hisTrigger, setHisTrigger] = useState(0);
@@ -28,7 +38,8 @@ const Level2 = ({setCompletedLevels }) => {
   const [sc, setsc] = useState(0);
   const [alertMessage, setAlertMessage] = useState("");
   const [abc, setAbc] = useState(false);
-  const [selectedCode, setSelectedCode] = useState("");
+  const [result, SetResult] = useState([]);
+  const [countdown, setCountdown] = useState(30);
 
   const initialHistoryDeck = [
     {
@@ -207,8 +218,8 @@ const Level2 = ({setCompletedLevels }) => {
       Math.random() * initialExaminationDeck.length
     );
     return initialExaminationDeck[randomIndex];
-  };
-  
+  }
+
   const examfun = () => {
     setExamTrigger(1);
     setHisTrigger(0);
@@ -227,6 +238,7 @@ const Level2 = ({setCompletedLevels }) => {
           return;
         }
         setBox1(his);
+        SetResult((prevResult) => [...prevResult, his, exam]);
         historyfun();
         a = 1;
       } else {
@@ -259,6 +271,7 @@ const Level2 = ({setCompletedLevels }) => {
           return;
         }
         setBox2(his);
+        SetResult((prevResult) => [...prevResult, his, exam]);
         historyfun();
         a = 1;
       } else {
@@ -291,6 +304,7 @@ const Level2 = ({setCompletedLevels }) => {
           return;
         }
         setBox3(his);
+        SetResult((prevResult) => [...prevResult, his, exam]);
         historyfun();
         a = 1;
       } else {
@@ -323,6 +337,7 @@ const Level2 = ({setCompletedLevels }) => {
           return;
         }
         setBox4(his);
+        SetResult((prevResult) => [...prevResult, his, exam]);
         historyfun();
         a = 1;
       } else {
@@ -471,190 +486,156 @@ const Level2 = ({setCompletedLevels }) => {
     handleCompleteLevel2();
   };
 
-  const resetGame = () => {
-    // Reset the selected cards
-
-    setHis({});
-    setExam({});
-    setHisTrigger(0);
-    setExamTrigger(0);
-    setBox1({});
-    setBox2({});
-    setBox3({});
-    setBox4({});
-    setSelectedseq([]);
-    setsc(0);
-    setAlertVisible(false);
-    setShowSuccessPopup(false);
-    setAbc(false);
-
-  };
+  useEffect(() => {
+    if (countdown <= 0) {
+      window.location.reload(); // Reload the page when countdown reaches zero
+      return;
+    }
+    
+    // Set the interval to decrease countdown every second (1000 ms)
+    const timer = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+  
+    // Cleanup the interval on component unmount
+    return () => clearInterval(timer);
+  }, [countdown]);
 
   return (
-    <>
+    <div className="w-full h-auto md:flex flex-col items-center">
       <div>
         {/* <CustomAlert message={alertMessage} onClose={closeAlert} /> */}
-        <div className="flex flex-col items-center">
-          <div>
-            <h2 className=" text-center sm:text-lg md:text-xl font-bold mr-10">
-              Select the correct cards
-            </h2>
-            <div className="flex mt-6">
-            <h2 className="text-center text-base sm:text-lg md:text-xl ml-8">
-              History
-            </h2>
-            <h2 className="text-center text-base sm:text-lg md:text-xl ml-48">
-              Examination
-            </h2>
-            </div>
-            <div className="flex flex-wrap justify-center items-center mt-4 sm:mt-7 space-y-4 sm:space-y-0 sm:space-x-4">
-              <div className="relative w-40 h-48 sm:w-64 sm:h-80 flex justify-center items-center">
-                <div
-                  className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg"
-                  style={{ top: "0px", left: "0px", zIndex: 0 }}
-                ></div>
-                <div
-                  className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg top-2 left-2 sm:top-4 sm:left-4"
-                  style={{ zIndex: 1 }}
-                ></div>
-                <div
-                  className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg top-4 left-4 sm:top-8 sm:left-8"
-                  style={{ zIndex: 2 }}
-                ></div>
-                <div
-                  className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg top-6 left-6 sm:top-12 sm:left-12"
-                  style={{ zIndex: 3 }}
-                ></div>
-                <div
-                  className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg top-8 left-8 sm:top-16 sm:left-16"
-                  style={{ zIndex: 4 }}
-                  onClick={historyfun}
-                >
-                  <p className="text-xs sm:text-sm">{his.text}</p>
-                </div>
+        <div className="w-full h-auto md:flex justify-center items-center">
+          {/* history Section */}
+          <div className="w-full h-80 m-7  flex flex-col items-center">
+            <div className="text-blue-600 font-bold text-2xl">History</div>
+            <div
+              className="relative w-60 h-72 cursor-pointer"
+              onClick={historyfun}
+            >
+              <div className="absolute inset-0 bg-blue-500 border border-gray-400 transform translate-y-12 translate-x-8"></div>
+              <div className="absolute inset-0 bg-blue-400 border border-gray-400 transform translate-y-9 translate-x-6"></div>
+              <div className="absolute inset-0 bg-blue-300 border border-gray-400 transform translate-y-6 translate-x-4"></div>
+              <div className="absolute inset-0 bg-blue-200 border border-gray-400 transform translate-y-3 translate-x-2"></div>
+              <div className="absolute inset-0 bg-blue-100 border border-gray-400 flex items-center justify-center">
+                <p className="text-center text-xl">{his.text}</p>
               </div>
-              <div className="relative w-40 h-48 sm:w-64 sm:h-80 flex justify-center items-center">
-                <div
-                  className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg"
-                  style={{ top: "0px", left: "0px", zIndex: 0 }}
-                ></div>
-                <div
-                  className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg top-2 left-2 sm:top-4 sm:left-4"
-                  style={{ zIndex: 1 }}
-                ></div>
-                <div
-                  className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg top-4 left-4 sm:top-8 sm:left-8"
-                  style={{ zIndex: 2 }}
-                ></div>
-                <div
-                  className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg top-6 left-6 sm:top-12 sm:left-12"
-                  style={{ zIndex: 3 }}
-                ></div>
-                <div
-                  className="absolute w-24 h-28 sm:w-40 sm:h-48 bg-blue-200 border border-blue-500 rounded-lg top-8 left-8 sm:top-16 sm:left-16"
-                  style={{ zIndex: 4 }}
-                  onClick={examfun}
-                >
-                  <p className="text-xs sm:text-sm">{exam.text}</p>
-                </div>
+            </div>
+          </div>
+          <div className="w-full h-80 m-7 flex flex-col items-center">
+            <div className="text-blue-600 font-bold text-2xl mt-4">Examination</div>
+            <div
+              className="relative w-60 h-72 cursor-pointer"
+              onClick={examfun}
+            >
+              <div className="absolute inset-0 bg-blue-500 border border-gray-400 transform translate-y-12 translate-x-8"></div>
+              <div className="absolute inset-0 bg-blue-400 border border-gray-400 transform translate-y-9 translate-x-6"></div>
+              <div className="absolute inset-0 bg-blue-300 border border-gray-400 transform translate-y-6 translate-x-4"></div>
+              <div className="absolute inset-0 bg-blue-200 border border-gray-400 transform translate-y-3 translate-x-2"></div>
+              <div className="absolute inset-0 bg-blue-100 border border-gray-400 flex items-center justify-center">
+                <p className="text-center text-xl">{exam.text}</p>
               </div>
             </div>
           </div>
         </div>
-        <div className="mt-8 text-xl sm:text-2xl">
+      </div>
+      
+      <div className="text-xl w-full h-30">
           <div>
-            <h2 className="text-center text-lg font-bold mb-4">
-              Choose the correct sequence
+            <h2 className="text-center text-lg font-bold mt-14">
+              Select Correct Cards
             </h2>
           </div>
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-12 mt-4 sm:mt-8">
+
+          <div className="flex flex-wrap justify-center gap-8 mt-4">
             <div
-              className="border-2 border-lime-400 w-40 h-24 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
+              className="border-2 border-blue-400 w-60 h-32 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
               onClick={res1}
             >
-              <p className="text-xs sm:text-sm">{box1.text}</p>
+              <p className="text-md text-center">{box1.text}</p>
             </div>
             <div
-              className="border-2 border-lime-400 w-40 h-24 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
+              className="border-2 border-blue-400 w-60 h-32 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
               onClick={res2}
             >
-              <p className="text-xs sm:text-sm">{box2.text}</p>
+              <p className="text-md text-center">{box2.text}</p>
             </div>
-          </div>
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-12 mt-4 sm:mt-8">
+
             <div
-              className="border-2 border-lime-400 w-40 h-24 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
+              className="border-2 border-blue-400 w-60 h-32 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
               onClick={res3}
             >
-              <p className="text-xs sm:text-sm">{box3.text}</p>
+              <p className="text-md text-center">{box3.text}</p>
             </div>
             <div
-              className="border-2 border-lime-400 w-40 h-24 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
+              className="border-2 border-blue-400 w-60 h-32 flex items-center justify-center bg-gray-100 rounded-lg shadow-md text-gray-700 transition-transform transform hover:scale-105"
               onClick={res4}
             >
-              <p className="text-xs sm:text-sm">{box4.text}</p>
+              <p className="text-md text-center">{box4.text}</p>
             </div>
+            
           </div>
+          
+        </div>
+        <div className="flex w-full mt-10">
+          <h2 className="text-xl text-blue-600 font-bold">Time Remaining: {countdown} seconds</h2>
         </div>
 
-        {/* Success Popup for Correct Sequence */}
-        {showSuccessPopup && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center">
-              <h2 className="text-lg font-semibold text-green-600 mb-4">
-                Correct!!
-              </h2>
-              {/* <p className="text-green-600">Go to the next level.</p> */}
-              <button
-                onClick={handleSuccessClose}
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-              >
-                Proceed to the next level
-              </button>
-            </div>
+      {/* Success Popup for Correct Sequence */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center">
+            <h2 className="text-lg font-semibold text-green-600 mb-4">
+              Correct!!
+            </h2>
+            {/* <p className="text-green-600">Go to the next level.</p> */}
+            <button
+              onClick={handleSuccessClose}
+              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+            >
+              Proceed to the next level
+            </button>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Wrong Alert */}
-        {alertVisible && (
-          <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <h2 className="text-xl font-bold mb-4 text-red-600">Wrong!</h2>
-              <p className="text-lg text-gray-700">
-                You have selected the wrong sequence!
-              </p>
-              <button
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onClick={() => {
-                  window.location.reload();
-                }}
-              >
-                Play Again
-              </button>
-            </div>
+      {/* Wrong Alert */}
+      {alertVisible && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-xl font-bold mb-4 text-red-600">Wrong!</h2>
+            <p className="text-lg text-gray-700">
+              You have selected the wrong sequence!
+            </p>
+            <button
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              onClick={() => {
+                window.location.reload();
+              }}
+            >
+              Play Again
+            </button>
           </div>
-        )}
-        
-        {abc && (
-          <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <h2 className="text-xl font-bold mb-4 text-red-600">Alert!</h2>
-              <p className="text-lg">
-                Maximum 3 card can be seleted from a deck
-              </p>
-              <button
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                onClick={() => {
-                  setAbc(false);
-                }}
-              >
-                close
-              </button>
-            </div>
+        </div>
+      )}
+
+      {abc && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-xl font-bold mb-4 text-red-600">Alert!</h2>
+            <p className="text-lg">Maximum 3 card can be seleted from a deck</p>
+            <button
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              onClick={() => {
+                setAbc(false);
+              }}
+            >
+              close
+            </button>
           </div>
-        )}
-      </div>
-    </>
+        </div>
+      )}
+    </div>
   );
 };
 
